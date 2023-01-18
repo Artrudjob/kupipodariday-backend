@@ -1,11 +1,17 @@
 import {
     Entity,
-    OneToOne,
     PrimaryGeneratedColumn,
-    JoinColumn,
-    OneToMany
+    OneToMany,
+    CreateDateColumn,
+    UpdateDateColumn,
+    Column
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
+import {
+    IsDate,
+    IsUrl,
+    Length,
+    Max
+} from 'class-validator';
 import { Wish } from '../../wishes/entities/wish.entity';
 
 @Entity()
@@ -14,10 +20,26 @@ export class Wishlist {
     @PrimaryGeneratedColumn()
     id: number
 
-    @OneToOne(() => User)
-    @JoinColumn()
-    user: User
+    @CreateDateColumn()
+    @IsDate()
+    createdAt: Date
 
-    @OneToMany(() => Wish, (wish) => wish)
-    wishes: Wish[]
+    @UpdateDateColumn()
+    @IsDate()
+    updatedAt: Date
+
+    @Column()
+    @Length(1, 250)
+    name: string
+
+    @Column()
+    @Max(1500)
+    description: string
+
+    @Column()
+    @IsUrl()
+    image: string
+
+    @OneToMany(() => Wish, wish => wish)
+    items: Wish[]
 }

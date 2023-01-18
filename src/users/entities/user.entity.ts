@@ -1,24 +1,68 @@
 import {
+    Column,
+    CreateDateColumn,
     Entity,
-    ManyToMany,
-    OneToOne,
+    OneToMany,
     PrimaryGeneratedColumn,
+    UpdateDateColumn,
 } from 'typeorm';
+import {
+    IsArray,
+    IsDate,
+    IsEmail,
+    IsNotEmpty,
+    IsUrl,
+    Length
+} from 'class-validator';
 import { Wishlist } from '../../wishlists/entities/wishlist.entity';
 import { Wish } from '../../wishes/entities/wish.entity';
 import { Offer } from '../../offers/entities/offer.entity';
 
 @Entity()
 export class User {
+
     @PrimaryGeneratedColumn()
     id: number
 
-    @OneToOne(() => Wishlist)
-    wishlist: Wishlist
+    @CreateDateColumn()
+    @IsDate()
+    createdAt: Date
 
-    @OneToOne(() => Offer)
-    offer: Offer
+    @UpdateDateColumn()
+    @IsDate()
+    updatedAt: Date
 
-    @ManyToMany(() => Wish, (wish) => wish)
+    @Column({ unique: true })
+    @IsNotEmpty()
+    @Length(2, 30)
+    username: string
+
+    @Column({ default: 'Пока ничего не рассказал о себе' })
+    @Length(2, 200)
+    about: string
+
+    @Column({ default: 'https://i.pravatar.cc/300' })
+    @IsUrl()
+    avatar: string
+
+    @Column({ unique: true })
+    @IsNotEmpty()
+    @IsEmail()
+    email: string
+
+    @Column()
+    @IsNotEmpty()
+    password: string
+
+    @OneToMany(() => Wish, (wish) => wish)
+    @IsArray()
     wishes: Wish[]
+
+    @OneToMany(() => Offer, (offer) => offer)
+    @IsArray()
+    offers: Offer[]
+
+    @OneToMany(() => Wishlist, (wishlist) => wishlist)
+    @IsArray()
+    wishlists: Wishlist[]
 }
