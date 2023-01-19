@@ -7,7 +7,11 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Wish } from '../../wishes/entities/wish.entity';
-import { IsBoolean, IsDate, IsPositive } from 'class-validator';
+import {
+    IsBoolean,
+    IsDate,
+    IsPositive
+} from 'class-validator';
 
 @Entity()
 export class Offer {
