@@ -3,7 +3,7 @@ import {
     CreateDateColumn,
     Entity,
     PrimaryGeneratedColumn,
-    UpdateDateColumn, OneToOne
+    UpdateDateColumn, OneToOne, JoinColumn
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Wish } from '../../wishes/entities/wish.entity';
@@ -13,7 +13,7 @@ import {
     IsPositive
 } from 'class-validator';
 
-@Entity()
+@Entity({ schema: 'nest_project' })
 export class Offer {
 
     @PrimaryGeneratedColumn()
@@ -27,10 +27,12 @@ export class Offer {
     @IsDate()
     updatedAt: Date
 
+    @JoinColumn()
     @OneToOne(() => User, user => user.id)
     user: User
 
-    @OneToOne(() => Wish, wish => wish)
+    @JoinColumn()
+    @OneToOne(() => Wish, wish => wish.id)
     item: Wish
 
     @Column()

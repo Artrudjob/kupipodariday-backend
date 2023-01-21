@@ -5,6 +5,7 @@ import {
     OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
+    JoinColumn
 } from 'typeorm';
 import {
     IsArray,
@@ -18,7 +19,7 @@ import { Wishlist } from '../../wishlists/entities/wishlist.entity';
 import { Wish } from '../../wishes/entities/wish.entity';
 import { Offer } from '../../offers/entities/offer.entity';
 
-@Entity()
+@Entity({ schema: 'nest_project' })
 export class User {
 
     @PrimaryGeneratedColumn()
@@ -54,14 +55,17 @@ export class User {
     @IsNotEmpty()
     password: string
 
+    @JoinColumn()
     @OneToMany(() => Wish, (wish) => wish)
     @IsArray()
     wishes: Wish[]
 
+    @JoinColumn()
     @OneToMany(() => Offer, (offer) => offer)
     @IsArray()
     offers: Offer[]
 
+    @JoinColumn()
     @OneToMany(() => Wishlist, (wishlist) => wishlist)
     @IsArray()
     wishlists: Wishlist[]

@@ -4,7 +4,8 @@ import {
     OneToMany,
     CreateDateColumn,
     UpdateDateColumn,
-    Column
+    Column,
+    JoinColumn
 } from 'typeorm';
 import {
     IsDate,
@@ -14,7 +15,7 @@ import {
 } from 'class-validator';
 import { Wish } from '../../wishes/entities/wish.entity';
 
-@Entity()
+@Entity({ schema: 'nest_project' })
 export class Wishlist {
 
     @PrimaryGeneratedColumn()
@@ -40,6 +41,7 @@ export class Wishlist {
     @IsUrl()
     image: string
 
+    @JoinColumn()
     @OneToMany(() => Wish, wish => wish)
     items: Wish[]
 }

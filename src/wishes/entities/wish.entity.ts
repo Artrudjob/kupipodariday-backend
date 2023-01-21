@@ -5,7 +5,8 @@ import {
     ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
-    UpdateDateColumn
+    UpdateDateColumn,
+    JoinColumn
 } from 'typeorm';
 import {
     IsArray,
@@ -18,7 +19,7 @@ import {
 import { User } from '../../users/entities/user.entity';
 import { Offer } from '../../offers/entities/offer.entity';
 
-@Entity()
+@Entity({ schema: 'nest_project' })
 export class Wish {
 
     @PrimaryGeneratedColumn()
@@ -52,6 +53,7 @@ export class Wish {
     @IsPositive()
     raised: number
 
+    @JoinColumn()
     @ManyToOne(() => User, (user) => user)
     owner: User
 
@@ -59,6 +61,7 @@ export class Wish {
     @Length(1, 1024)
     description: string
 
+    @JoinColumn()
     @OneToMany(() => Offer, (offer) => offer)
     @IsArray()
     offers: Offer[]
