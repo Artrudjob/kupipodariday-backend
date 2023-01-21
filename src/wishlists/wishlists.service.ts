@@ -1,26 +1,48 @@
-import { Injectable } from '@nestjs/common';
+import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Wishlist } from './entities/wishlist.entity';
 
 @Injectable()
 export class WishlistsService {
-  create(createWishlistDto: CreateWishlistDto) {
-    return 'This action adds a new wishlist';
+  constructor(
+      @InjectRepository(Wishlist)
+      private wishlistRepository: Repository<Wishlist>,
+  ) {}
+
+  async create(createWishlistDto: CreateWishlistDto) {
+    const newWishlist = await this.wishlistRepository.create(createWishlistDto);
+    await this.wishlistRepository.save(newWishlist);
+
+    return newWishlist;
   }
 
-  findAll() {
-    return `This action returns all wishlists`;
+  async findOne(id: number) {
+    const wishlist = await this.wishlistRepository.findOneBy({ id: id });
+    if (wishlist) {
+      return wishlist;
+    }
+
+    throw new HttpException('Запрашиваемый список желаний не найден.', HttpStatus.NOT_FOUND);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} wishlist`;
+  async updateOne(id: number, updateWishlistDto: UpdateWishlistDto) {
+    await this.wishlistRepository.update(id, updateWishlistDto);
+
+    const updatedWishlist = await this.wishlistRepository.findOneBy({ id: id });
+    if (updatedWishlist) {
+      return updatedWishlist;
+    }
+
+    throw new HttpException('Невозможно обновить. Список желаний не найден.', HttpStatus.NOT_FOUND);
   }
 
-  update(id: number, updateWishlistDto: UpdateWishlistDto) {
-    return `This action updates a #${id} wishlist`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} wishlist`;
+  async removeOne(id: number) {
+    const deletedWishlist = await this.wishlistRepository.delete(id);
+    if (!deletedWishlist.affected) {
+      throw new HttpException('Невозможно удалить. Список желаний не найден.', HttpStatus.NOT_FOUND);
+    }
   }
 }

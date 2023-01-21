@@ -1,1 +1,3 @@
-export class CreateWishDto {}
+export class CreateWishDto {
+
+}
