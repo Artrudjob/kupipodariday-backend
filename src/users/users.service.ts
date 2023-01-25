@@ -42,11 +42,13 @@ export class UsersService {
   }
 
   async updateOne(id: number, updateUserDto: UpdateUserDto) {
-    await this.userRepository.update(id, updateUserDto);
+    const user = await this.userRepository.findOneBy({ id: id });
+    const { password, ...res } = updateUserDto;
+    const hash = await bcrypt.hash(password, 10);
 
-    const updatedUser = await this.userRepository.findOneBy({ id: id });
-    if (updatedUser) {
-      return updatedUser;
+    if (user) {
+      await this.userRepository.update(id, { password: hash, ...res})
+      return updateUserDto;
     }
 
     throw new HttpException('Невозможно обновить. Пользователь не найден.', HttpStatus.NOT_FOUND);
