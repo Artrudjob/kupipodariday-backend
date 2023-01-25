@@ -16,12 +16,14 @@ export class AuthController {
     @UseGuards(LocalGuard)
     @Post('signin')
     signin(@Req() req, @Res() res: Response) {
-        res.status(200).cookie('access_token', this.authService.auth(req.user), { httpOnly: true }).send();
+        res.status(200).cookie('access_token', this.authService.auth(req.user), { httpOnly: true })
+            .send({ 'signin': true });
     }
 
     @Post('signup')
     async signup(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
         const user = await this.usersService.create(createUserDto);
-        res.status(200).cookie('access_token', this.authService.auth(user), { httpOnly: true }).send();
+        res.status(200).cookie('access_token', this.authService.auth(user), { httpOnly: true })
+            .send({ 'signup': true });
     }
 }
