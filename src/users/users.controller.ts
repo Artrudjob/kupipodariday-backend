@@ -25,6 +25,12 @@ export class UsersController {
   }
 
   @UseGuards(JwtGuard)
+  @Post('find')
+  findMany(@Body() body: { query: string }) {
+    return this.usersService.find(body);
+  }
+
+  @UseGuards(JwtGuard)
   @Patch('me')
   updateOne(@Req() req: RequestUserId, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.updateOne(req.user.id, updateUserDto);

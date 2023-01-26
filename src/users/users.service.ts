@@ -23,6 +23,15 @@ export class UsersService {
     return newUser;
   }
 
+  async find(body: { query: string }) {
+    const user = await this.userRepository.findOneBy({ email: body.query }) || await this.userRepository.findOneBy({ username: body.query });
+    if (user) {
+      return user;
+    }
+
+    throw new HttpException('Запрашиваемый пользователь не найден.', HttpStatus.NOT_FOUND);
+  }
+
   async findOne(id: number) {
     const user = await this.userRepository.findOneBy({ id: id });
     if (user) {
