@@ -14,11 +14,13 @@ export class UsersController {
     return this.usersService.create(userDto);
   }
 
+  @UseGuards(JwtGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id);
   }
 
+  @UseGuards(JwtGuard)
   @Get(':username')
   findByUsername(@Param('username') username: string) {
     return this.usersService.findByUsername(username);
@@ -36,6 +38,7 @@ export class UsersController {
     return this.usersService.updateOne(req.user.id, updateUserDto);
   }
 
+  @UseGuards(JwtGuard)
   @Delete(':id')
   removeOne(@Param('id') id: string) {
     return this.usersService.removeOne(+id);
