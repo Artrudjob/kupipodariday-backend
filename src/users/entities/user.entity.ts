@@ -1,72 +1,71 @@
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    OneToMany,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
-    JoinColumn
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import {
-    IsArray,
-    IsDate,
-    IsEmail,
-    IsNotEmpty,
-    IsUrl,
-    Length
+  IsArray,
+  IsDate,
+  IsEmail,
+  IsNotEmpty,
+  IsUrl,
+  Length,
 } from 'class-validator';
 import { Wishlist } from '../../wishlists/entities/wishlist.entity';
 import { Wish } from '../../wishes/entities/wish.entity';
 import { Offer } from '../../offers/entities/offer.entity';
 
-@Entity({ schema: 'nest_project' })
+@Entity('nest_project')
 export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @PrimaryGeneratedColumn()
-    id: number
+  @CreateDateColumn()
+  @IsDate()
+  createdAt: Date;
 
-    @CreateDateColumn()
-    @IsDate()
-    createdAt: Date
+  @UpdateDateColumn()
+  @IsDate()
+  updatedAt: Date;
 
-    @UpdateDateColumn()
-    @IsDate()
-    updatedAt: Date
+  @Column({ unique: true })
+  @IsNotEmpty()
+  @Length(2, 30)
+  username: string;
 
-    @Column({ unique: true })
-    @IsNotEmpty()
-    @Length(2, 30)
-    username: string
+  @Column({ default: 'Пока ничего не рассказал о себе' })
+  @Length(2, 200)
+  about: string;
 
-    @Column({ default: 'Пока ничего не рассказал о себе' })
-    @Length(2, 200)
-    about: string
+  @Column({ default: 'https://i.pravatar.cc/300' })
+  @IsUrl()
+  avatar: string;
 
-    @Column({ default: 'https://i.pravatar.cc/300' })
-    @IsUrl()
-    avatar: string
+  @Column({ unique: true })
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
 
-    @Column({ unique: true })
-    @IsNotEmpty()
-    @IsEmail()
-    email: string
+  @Column()
+  @IsNotEmpty()
+  password: string;
 
-    @Column()
-    @IsNotEmpty()
-    password: string
+  @JoinColumn()
+  @OneToMany(() => Wish, (wish) => wish)
+  @IsArray()
+  wishes: Wish[];
 
-    @JoinColumn()
-    @OneToMany(() => Wish, (wish) => wish)
-    @IsArray()
-    wishes: Wish[]
+  @JoinColumn()
+  @OneToMany(() => Offer, (offer) => offer)
+  @IsArray()
+  offers: Offer[];
 
-    @JoinColumn()
-    @OneToMany(() => Offer, (offer) => offer)
-    @IsArray()
-    offers: Offer[]
-
-    @JoinColumn()
-    @OneToMany(() => Wishlist, (wishlist) => wishlist)
-    @IsArray()
-    wishlists: Wishlist[]
+  @JoinColumn()
+  @OneToMany(() => Wishlist, (wishlist) => wishlist)
+  @IsArray()
+  wishlists: Wishlist[];
 }
