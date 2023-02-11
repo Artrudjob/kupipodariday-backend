@@ -9,8 +9,8 @@ import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UsersService {
   constructor(
-      @InjectRepository(User)
-      private userRepository: Repository<User>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -24,12 +24,17 @@ export class UsersService {
   }
 
   async find(body: { query: string }) {
-    const user = await this.userRepository.findOneBy({ email: body.query }) || await this.userRepository.findOneBy({ username: body.query });
+    const user =
+      (await this.userRepository.findOneBy({ email: body.query })) ||
+      (await this.userRepository.findOneBy({ username: body.query }));
     if (user) {
       return user;
     }
 
-    throw new HttpException('Запрашиваемый пользователь не найден.', HttpStatus.NOT_FOUND);
+    throw new HttpException(
+      'Запрашиваемый пользователь не найден.',
+      HttpStatus.NOT_FOUND,
+    );
   }
 
   async findOne(id: number) {
@@ -38,16 +43,22 @@ export class UsersService {
       return user;
     }
 
-    throw new HttpException('Запрашиваемый пользователь не найден.', HttpStatus.NOT_FOUND);
+    throw new HttpException(
+      'Запрашиваемый пользователь не найден.',
+      HttpStatus.NOT_FOUND,
+    );
   }
 
   async findByUsername(username: string) {
-    const user = await this.userRepository.findOneBy({ username: username })
+    const user = await this.userRepository.findOneBy({ username: username });
     if (user) {
       return user;
     }
 
-    throw new HttpException('Запрашиваемый пользователь не найден.', HttpStatus.NOT_FOUND);
+    throw new HttpException(
+      'Запрашиваемый пользователь не найден.',
+      HttpStatus.NOT_FOUND,
+    );
   }
 
   async updateOne(id: number, updateUserDto: UpdateUserDto) {
@@ -56,17 +67,23 @@ export class UsersService {
     const hash = await bcrypt.hash(password, 10);
 
     if (user) {
-      await this.userRepository.update(id, { password: hash, ...res})
+      await this.userRepository.update(id, { password: hash, ...res });
       return updateUserDto;
     }
 
-    throw new HttpException('Невозможно обновить. Пользователь не найден.', HttpStatus.NOT_FOUND);
+    throw new HttpException(
+      'Невозможно обновить. Пользователь не найден.',
+      HttpStatus.NOT_FOUND,
+    );
   }
 
   async removeOne(id: number) {
     const deletedUser = await this.userRepository.delete(id);
     if (!deletedUser.affected) {
-      throw new HttpException('Невозможно удалить. Пользователь не найден.', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Невозможно удалить. Пользователь не найден.',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 }

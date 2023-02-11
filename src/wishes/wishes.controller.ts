@@ -1,4 +1,14 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { WishesService } from './wishes.service';
 import { CreateWishDto } from './dto/create-wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';
@@ -9,13 +19,16 @@ import { RequestUserId } from '../interface/interface';
 @Controller('wishes')
 export class WishesController {
   constructor(
-      private readonly wishesService: WishesService,
-      private readonly usersService: UsersService
+    private readonly wishesService: WishesService,
+    private readonly usersService: UsersService,
   ) {}
 
   @UseGuards(JwtGuard)
   @Post()
-  async create(@Req() req: RequestUserId, @Body() createWishDto: CreateWishDto) {
+  async create(
+    @Req() req: RequestUserId,
+    @Body() createWishDto: CreateWishDto,
+  ) {
     const owner = await this.usersService.findOne(req.user.id);
     return this.wishesService.create(createWishDto, owner);
   }
@@ -28,7 +41,11 @@ export class WishesController {
 
   @UseGuards(JwtGuard)
   @Patch(':id')
-  async updateOne(@Req() req: RequestUserId, @Param('id') id: string, @Body() updateWishDto: UpdateWishDto) {
+  async updateOne(
+    @Req() req: RequestUserId,
+    @Param('id') id: string,
+    @Body() updateWishDto: UpdateWishDto,
+  ) {
     const currentUser = await this.usersService.findOne(req.user.id);
     return this.wishesService.updateOne(+id, updateWishDto, currentUser.id);
   }

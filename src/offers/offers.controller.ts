@@ -1,4 +1,14 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { OffersService } from './offers.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { UpdateOfferDto } from './dto/update-offer.dto';
@@ -9,13 +19,16 @@ import { UsersService } from '../users/users.service';
 @Controller('offers')
 export class OffersController {
   constructor(
-      private readonly offersService: OffersService,
-      private readonly usersService: UsersService
-              ) {}
+    private readonly offersService: OffersService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @UseGuards(JwtGuard)
   @Post()
-  async create(@Req() req: RequestUserId , @Body() createOfferDto: CreateOfferDto) {
+  async create(
+    @Req() req: RequestUserId,
+    @Body() createOfferDto: CreateOfferDto,
+  ) {
     const user = await this.usersService.findOne(req.user.id);
     return this.offersService.create(createOfferDto, user);
   }
