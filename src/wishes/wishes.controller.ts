@@ -1,17 +1,23 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req} from '@nestjs/common';
 import { WishesService } from './wishes.service';
 import { CreateWishDto } from './dto/create-wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';
-import {JwtGuard} from "../auth/jwt.guard";
+import { JwtGuard } from '../auth/jwt.guard';
+import { UsersService } from '../users/users.service';
+import { RequestUserId } from '../interface/interface';
 
 @Controller('wishes')
 export class WishesController {
-  constructor(private readonly wishesService: WishesService) {}
+  constructor(
+      private readonly wishesService: WishesService,
+      private readonly usersService: UsersService
+  ) {}
 
   @UseGuards(JwtGuard)
   @Post()
-  create(@Body() createWishDto: CreateWishDto) {
-    return this.wishesService.create(createWishDto);
+  async create(@Req() req: RequestUserId, @Body() createWishDto: CreateWishDto) {
+    const owner = await this.usersService.findOne(req.user.id);
+    return this.wishesService.create(createWishDto, owner);
   }
 
   @UseGuards(JwtGuard)
@@ -22,13 +28,34 @@ export class WishesController {
 
   @UseGuards(JwtGuard)
   @Patch(':id')
-  updateOne(@Param('id') id: string, @Body() updateWishDto: UpdateWishDto) {
-    return this.wishesService.updateOne(+id, updateWishDto);
+  async updateOne(@Req() req: RequestUserId, @Param('id') id: string, @Body() updateWishDto: UpdateWishDto) {
+    const currentUser = await this.usersService.findOne(req.user.id);
+    return this.wishesService.updateOne(+id, updateWishDto, currentUser.id);
   }
 
   @UseGuards(JwtGuard)
   @Delete(':id')
-  removeOne(@Param('id') id: string) {
-    return this.wishesService.removeOne(+id);
+  async removeOne(@Req() req: RequestUserId, @Param('id') id: string) {
+    const currentUser = await this.usersService.findOne(req.user.id);
+    return this.wishesService.removeOne(+id, currentUser.id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('/top')
+  getTop() {
+    return this.wishesService.getTop();
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('/last')
+  getLast() {
+    return this.wishesService.getLast();
+  }
+
+  @UseGuards(JwtGuard)
+  @Post(':id/copy')
+  async copyWish(@Req() req: RequestUserId, @Param('id') wishId: number) {
+    const currentUser = await this.usersService.findOne(req.user.id);
+    return this.wishesService.copyWish(wishId, currentUser);
   }
 }

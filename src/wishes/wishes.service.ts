@@ -1,9 +1,10 @@
-import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateWishDto } from './dto/create-wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Wish } from './entities/wish.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class WishesService {
@@ -12,9 +13,9 @@ export class WishesService {
       private wishRepository: Repository<Wish>,
   ) {}
 
-  async create(createWishDto: CreateWishDto) {
+  async create(createWishDto: CreateWishDto, owner: User) {
     const newWish = await this.wishRepository.create(createWishDto);
-    await this.wishRepository.save(newWish);
+    await this.wishRepository.save({ ...createWishDto, owner });
 
     return newWish;
   }
@@ -28,20 +29,59 @@ export class WishesService {
     throw new HttpException('Запрашиваемый подарок не найден.', HttpStatus.NOT_FOUND);
   }
 
-  async updateOne(id: number, updateWishDto: UpdateWishDto) {
-    await this.wishRepository.update(id, updateWishDto);
-    const updatedWish = await this.wishRepository.findOneBy({ id: id });
-    if (updatedWish) {
-      return updatedWish;
+  async updateOne(id: number, updateWishDto: UpdateWishDto, userId: number) {
+    const wish = await this.wishRepository.findOneBy({ id: id })
+    if (!wish) {
+      throw new HttpException('Невозможно обновить. Запрашиваемый подарок не найден.', HttpStatus.NOT_FOUND);
     }
 
-    throw new HttpException('Невозможно обновить. Запрашиваемый подарок не найден.', HttpStatus.NOT_FOUND);
+    if (wish.owner.id !== userId) {
+      throw new HttpException('Невозможно обновить чужой подарок.', HttpStatus.FORBIDDEN)
+    }
+
+    if (wish.offers.length > 0) {
+      const price = wish.price;
+      return await this.wishRepository.update(id, { ...updateWishDto, price: price })
+    } else {
+      return await this.wishRepository.update(id, updateWishDto);
+    }
   }
 
-  async removeOne(id: number) {
+  async UpdateRaised(wish: Wish, amount: number) {
+    return this.wishRepository.update(
+        { id: wish.id },
+        { raised: wish.raised + amount }
+        );
+  }
+
+  async removeOne(id: number, userId: number) {
+    const wish = await this.wishRepository.findOneBy({ id: id })
+    if (wish.owner.id !== userId) {
+      throw new HttpException('Невозможно удалить чужой подарок.', HttpStatus.FORBIDDEN)
+    }
+
     const deletedWish = await this.wishRepository.delete(id);
     if (!deletedWish.affected) {
       throw new HttpException('Невозможно удалить. Подарок не найден.', HttpStatus.NOT_FOUND);
     }
+  }
+
+  getTop() {
+    return this.wishRepository.find({ where: {}, order: { copied: 'DESC'} });
+  }
+
+  getLast() {
+    return this.wishRepository.find({ where: {}, order: { createdAt: 'DESC' } });
+  }
+
+  async copyWish(wishId: number, user: User) {
+    const wish = await this.wishRepository.findOneBy({ id: wishId });
+    if (wish.owner.id === user.id) {
+      throw new HttpException('Невозможно скопировать собственный подарок', HttpStatus.BAD_REQUEST);
+    }
+
+    const newWish = await this.create({ ...wish }, user);
+    await this.wishRepository.update({id: wishId}, {copied: wish.copied + 1});
+    return newWish;
   }
 }

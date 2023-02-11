@@ -49,24 +49,24 @@ export class Wish {
     @IsPositive()
     price: number
 
-    @Column()
+    @Column({ nullable: true })
     @IsPositive()
     raised: number
 
-    @JoinColumn()
-    @ManyToOne(() => User, (user) => user)
+    @JoinColumn({name: 'ownerId'})
+    @ManyToOne(() => User, (user) => user, { eager: true })
     owner: User
 
     @Column()
     @Length(1, 1024)
     description: string
 
-    @JoinColumn()
-    @OneToMany(() => Offer, (offer) => offer)
+    @JoinColumn({ name: 'offers' })
+    @OneToMany(() => Offer, (offers) => offers.item, { eager: true })
     @IsArray()
     offers: Offer[]
 
-    @Column("integer")
+    @Column("integer", { nullable: true })
     @IsInt()
     copied: number
 }

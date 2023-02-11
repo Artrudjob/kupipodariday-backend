@@ -1,17 +1,23 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req} from '@nestjs/common';
 import { WishlistsService } from './wishlists.service';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
-import {JwtGuard} from "../auth/jwt.guard";
+import { JwtGuard } from '../auth/jwt.guard';
+import { RequestUserId } from '../interface/interface';
+import { UsersService } from '../users/users.service';
 
 @Controller('wishlists')
 export class WishlistsController {
-  constructor(private readonly wishlistsService: WishlistsService) {}
+  constructor(
+      private readonly wishlistsService: WishlistsService,
+      private readonly usersService: UsersService
+  ) {}
 
   @UseGuards(JwtGuard)
   @Post()
-  create(@Body() createWishlistDto: CreateWishlistDto) {
-    return this.wishlistsService.create(createWishlistDto);
+  async create(@Req() req: RequestUserId ,@Body() createWishlistDto: CreateWishlistDto) {
+    const user = await this.usersService.findOne(req.user.id);
+    return this.wishlistsService.create(createWishlistDto, user);
   }
 
   @UseGuards(JwtGuard)
@@ -22,13 +28,15 @@ export class WishlistsController {
 
   @UseGuards(JwtGuard)
   @Patch(':id')
-  updateOne(@Param('id') id: string, @Body() updateWishlistDto: UpdateWishlistDto) {
-    return this.wishlistsService.updateOne(+id, updateWishlistDto);
+  async updateOne(@Req() req: RequestUserId, @Param('id') id: string, @Body() updateWishlistDto: UpdateWishlistDto) {
+    const currentUser = await this.usersService.findOne(req.user.id);
+    return this.wishlistsService.updateOne(+id, currentUser.id, updateWishlistDto);
   }
 
   @UseGuards(JwtGuard)
   @Delete(':id')
-  removeOne(@Param('id') id: string) {
-    return this.wishlistsService.removeOne(+id);
+  async removeOne(@Req() req: RequestUserId, @Param('id') id: string) {
+    const currentUser = await this.usersService.findOne(req.user.id);
+    return this.wishlistsService.removeOne(+id, currentUser.id);
   }
 }

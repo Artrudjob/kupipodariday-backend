@@ -5,7 +5,7 @@ import {
     CreateDateColumn,
     UpdateDateColumn,
     Column,
-    JoinColumn
+    JoinColumn, ManyToOne
 } from 'typeorm';
 import {
     IsDate,
@@ -14,6 +14,7 @@ import {
     Max
 } from 'class-validator';
 import { Wish } from '../../wishes/entities/wish.entity';
+import {User} from "../../users/entities/user.entity";
 
 @Entity({ schema: 'nest_project' })
 export class Wishlist {
@@ -44,4 +45,8 @@ export class Wishlist {
     @JoinColumn()
     @OneToMany(() => Wish, wish => wish)
     items: Wish[]
+
+    @JoinColumn()
+    @ManyToOne(() => User, user => user.wishlists)
+    owner: User
 }

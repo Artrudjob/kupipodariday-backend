@@ -4,6 +4,8 @@ import { UpdateWishlistDto } from './dto/update-wishlist.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Wishlist } from './entities/wishlist.entity';
+import { User } from '../users/entities/user.entity';
+import { Wish } from '../wishes/entities/wish.entity';
 
 @Injectable()
 export class WishlistsService {
@@ -12,8 +14,10 @@ export class WishlistsService {
       private wishlistRepository: Repository<Wishlist>,
   ) {}
 
-  async create(createWishlistDto: CreateWishlistDto) {
-    const newWishlist = await this.wishlistRepository.create(createWishlistDto);
+  async create(createWishlistDto: CreateWishlistDto, user: User) {
+    const { itemsId } = createWishlistDto;
+    const items = itemsId.map((id) => ({ id } as Wish ));
+    const newWishlist = await this.wishlistRepository.create({ ...createWishlistDto, items, owner: user });
     await this.wishlistRepository.save(newWishlist);
 
     return newWishlist;
@@ -21,6 +25,7 @@ export class WishlistsService {
 
   async findOne(id: number) {
     const wishlist = await this.wishlistRepository.findOneBy({ id: id });
+
     if (wishlist) {
       return wishlist;
     }
@@ -28,7 +33,12 @@ export class WishlistsService {
     throw new HttpException('Запрашиваемый список желаний не найден.', HttpStatus.NOT_FOUND);
   }
 
-  async updateOne(id: number, updateWishlistDto: UpdateWishlistDto) {
+  async updateOne(id: number, userId: number, updateWishlistDto: UpdateWishlistDto) {
+    const wishlist = await this.wishlistRepository.findOneBy({ id: id });
+    if (wishlist.owner.id !== userId) {
+      throw new HttpException('Невозможно удалить чужой список желаний', HttpStatus.FORBIDDEN);
+    }
+
     await this.wishlistRepository.update(id, updateWishlistDto);
 
     const updatedWishlist = await this.wishlistRepository.findOneBy({ id: id });
@@ -39,7 +49,12 @@ export class WishlistsService {
     throw new HttpException('Невозможно обновить. Список желаний не найден.', HttpStatus.NOT_FOUND);
   }
 
-  async removeOne(id: number) {
+  async removeOne(id: number, userId: number) {
+    const wishlist = await this.wishlistRepository.findOneBy({ id: id });
+    if (wishlist.owner.id !== userId) {
+      throw new HttpException('Невозможно удалить чужой список желаний', HttpStatus.FORBIDDEN);
+    }
+
     const deletedWishlist = await this.wishlistRepository.delete(id);
     if (!deletedWishlist.affected) {
       throw new HttpException('Невозможно удалить. Список желаний не найден.', HttpStatus.NOT_FOUND);

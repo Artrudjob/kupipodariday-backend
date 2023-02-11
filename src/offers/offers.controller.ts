@@ -1,19 +1,23 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req} from '@nestjs/common';
 import { OffersService } from './offers.service';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { UpdateOfferDto } from './dto/update-offer.dto';
 import { JwtGuard } from '../auth/jwt.guard';
+import { RequestUserId } from '../interface/interface';
+import { UsersService } from '../users/users.service';
 
 @Controller('offers')
 export class OffersController {
   constructor(
-      private readonly offersService: OffersService
+      private readonly offersService: OffersService,
+      private readonly usersService: UsersService
               ) {}
 
   @UseGuards(JwtGuard)
   @Post()
-  create(@Body() createOfferDto: CreateOfferDto) {
-    return this.offersService.create(createOfferDto);
+  async create(@Req() req: RequestUserId , @Body() createOfferDto: CreateOfferDto) {
+    const user = await this.usersService.findOne(req.user.id);
+    return this.offersService.create(createOfferDto, user);
   }
 
   @UseGuards(JwtGuard)
