@@ -11,7 +11,7 @@ import { User } from '../../users/entities/user.entity';
 import { Wish } from '../../wishes/entities/wish.entity';
 import { IsBoolean, IsDate, IsPositive } from 'class-validator';
 
-@Entity('nest_project')
+@Entity('offers')
 export class Offer {
   @PrimaryGeneratedColumn()
   id: number;

@@ -19,7 +19,7 @@ import { Wishlist } from '../../wishlists/entities/wishlist.entity';
 import { Wish } from '../../wishes/entities/wish.entity';
 import { Offer } from '../../offers/entities/offer.entity';
 
-@Entity('nest_project')
+@Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
