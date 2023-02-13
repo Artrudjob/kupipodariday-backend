@@ -57,14 +57,12 @@ export class WishesController {
     return this.wishesService.removeOne(+id, currentUser.id);
   }
 
-  @UseGuards(JwtGuard)
-  @Post('/top')
+  @Get('/top')
   getTop() {
     return this.wishesService.getTop();
   }
 
-  @UseGuards(JwtGuard)
-  @Post('/last')
+  @Get('/last')
   getLast() {
     return this.wishesService.getLast();
   }

@@ -8,7 +8,7 @@ import {
   JoinColumn,
   ManyToOne,
 } from 'typeorm';
-import { IsDate, IsUrl, Length, Max } from 'class-validator';
+import { IsDate, IsUrl, Length } from 'class-validator';
 import { Wish } from '../../wishes/entities/wish.entity';
 import { User } from '../../users/entities/user.entity';
 
@@ -28,10 +28,6 @@ export class Wishlist {
   @Column()
   @Length(1, 250)
   name: string;
-
-  @Column()
-  @Max(1500)
-  description: string;
 
   @Column()
   @IsUrl()

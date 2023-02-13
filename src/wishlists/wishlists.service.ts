@@ -45,7 +45,7 @@ export class WishlistsService {
     userId: number,
     updateWishlistDto: UpdateWishlistDto,
   ) {
-    const wishlist = await this.wishlistRepository.findOneBy({ id: id });
+    const wishlist = await this.wishlistRepository.findOne({ where: { id }, relations: ['owner', 'item'] });
     if (wishlist.owner.id !== userId) {
       throw new HttpException(
         'Невозможно удалить чужой список желаний',
@@ -67,7 +67,7 @@ export class WishlistsService {
   }
 
   async removeOne(id: number, userId: number) {
-    const wishlist = await this.wishlistRepository.findOneBy({ id: id });
+    const wishlist = await this.wishlistRepository.findOne({ where: { id }, relations: ['owner', 'item'] });
     if (wishlist.owner.id !== userId) {
       throw new HttpException(
         'Невозможно удалить чужой список желаний',

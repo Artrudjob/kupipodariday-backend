@@ -14,13 +14,13 @@ export class AuthController {
 
   @UseGuards(LocalGuard)
   @Post('signin')
-  signin(@Req() req, @Res() res: Response) {
+  async signin(@Req() req, @Res() res: Response) {
     res
       .status(200)
       .cookie('access_token', this.authService.auth(req.user), {
         httpOnly: true,
       })
-      .send({ signin: true });
+      .send({ access_token: this.authService.auth(req.user) });
   }
 
   @Post('signup')
@@ -29,6 +29,6 @@ export class AuthController {
     res
       .status(200)
       .cookie('access_token', this.authService.auth(user), { httpOnly: true })
-      .send({ signup: true });
+      .send(user);
   }
 }

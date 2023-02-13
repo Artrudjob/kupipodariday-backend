@@ -28,7 +28,8 @@ export class UsersService {
       (await this.userRepository.findOneBy({ email: body.query })) ||
       (await this.userRepository.findOneBy({ username: body.query }));
     if (user) {
-      return user;
+      const { password, ...rest } = user
+      return rest;
     }
 
     throw new HttpException(
@@ -68,7 +69,7 @@ export class UsersService {
 
     if (user) {
       await this.userRepository.update(id, { password: hash, ...res });
-      return updateUserDto;
+      return user;
     }
 
     throw new HttpException(

@@ -25,7 +25,7 @@ import { AuthModule } from './auth/auth.module';
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
       entities: [User, Wish, Wishlist, Offer],
-      synchronize: true,
+      synchronize: !!process.env.SYNCHRONUZE,
     }),
     AuthModule,
     UsersModule,
