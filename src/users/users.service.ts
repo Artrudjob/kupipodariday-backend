@@ -1,4 +1,9 @@
-import {HttpException, HttpStatus, Injectable, NotFoundException} from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -28,7 +33,7 @@ export class UsersService {
       (await this.userRepository.findOneBy({ email: body.query })) ||
       (await this.userRepository.findOneBy({ username: body.query }));
     if (user) {
-      const { password, ...rest } = user
+      const { password, ...rest } = user;
       return rest;
     }
 
@@ -99,7 +104,7 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('Пользователь не найден', {
         cause: new Error(),
-        description: 'По данному id пользователь не найден'
+        description: 'По данному id пользователь не найден',
       });
     }
 

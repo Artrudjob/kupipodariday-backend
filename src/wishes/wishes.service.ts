@@ -67,7 +67,10 @@ export class WishesService {
   }
 
   async removeOne(id: number, userId: number) {
-    const wish = await this.wishRepository.findOne({ where: { id }, relations: ['owner']});
+    const wish = await this.wishRepository.findOne({
+      where: { id },
+      relations: ['owner'],
+    });
     if (wish.owner.id !== userId) {
       throw new HttpException(
         'Невозможно удалить чужой подарок.',
@@ -85,19 +88,26 @@ export class WishesService {
   }
 
   getTop() {
-    return this.wishRepository.find({ where: {}, order: { copied: 'DESC' }, take: 20 });
+    return this.wishRepository.find({
+      where: {},
+      order: { copied: 'DESC' },
+      take: 20,
+    });
   }
 
   getLast() {
     return this.wishRepository.find({
       where: {},
       order: { createdAt: 'DESC' },
-      take: 40
+      take: 40,
     });
   }
 
   async copyWish(id: number, user: User) {
-    const wish = await this.wishRepository.findOne({ where: { id }, relations: ['owner']});
+    const wish = await this.wishRepository.findOne({
+      where: { id },
+      relations: ['owner'],
+    });
     if (wish.owner.id === user.id) {
       throw new HttpException(
         'Невозможно скопировать собственный подарок',
@@ -106,10 +116,7 @@ export class WishesService {
     }
 
     const newWish = await this.create({ ...wish }, user);
-    await this.wishRepository.update(
-      { id: id },
-      { copied: wish.copied + 1 },
-    );
+    await this.wishRepository.update({ id: id }, { copied: wish.copied + 1 });
     return newWish;
   }
 }

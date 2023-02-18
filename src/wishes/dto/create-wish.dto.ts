@@ -1,7 +1,6 @@
 import { IsPositive, IsUrl, Length } from 'class-validator';
 
 export class CreateWishDto {
-
   @Length(1, 250)
   name: string;
 
