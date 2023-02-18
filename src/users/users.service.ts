@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {HttpException, HttpStatus, Injectable, NotFoundException} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -86,5 +86,23 @@ export class UsersService {
         HttpStatus.NOT_FOUND,
       );
     }
+  }
+
+  async getUserWishes(id: number) {
+    const user = await this.userRepository.findOneBy({ id: id });
+    return user.wishes;
+  }
+
+  async getWishesByUsername(username: string) {
+    const user = await this.userRepository.findOneBy({ username: username });
+
+    if (!user) {
+      throw new NotFoundException('Пользователь не найден', {
+        cause: new Error(),
+        description: 'По данному id пользователь не найден'
+      });
+    }
+
+    return user.wishes;
   }
 }

@@ -24,6 +24,21 @@ export class UsersController {
     return this.usersService.findByUsername(username);
   }
 
+  @Get('me')
+  getUserMe(@Req() req: RequestUserId) {
+    return this.usersService.findOne(req.user.id);
+  }
+
+  @Get('me/wishes')
+  getUserWishes(@Req() req: RequestUserId) {
+    return this.usersService.getUserWishes(req.user.id);
+  }
+
+  @Get(':username/wishes')
+  getWishesByUsername(@Param('username') username: string) {
+    return this.usersService.getWishesByUsername(username);
+  }
+
   @Post('find')
   findMany(@Body() body: { query: string }) {
     return this.usersService.find(body);
