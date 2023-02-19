@@ -59,6 +59,19 @@ export class UsersService {
   async findByUsername(username: string) {
     const user = await this.userRepository.findOneBy({ username });
     if (user) {
+      const { password, ...rest } = user;
+      return rest;
+    }
+
+    throw new HttpException(
+      'Запрашиваемый пользователь не найден.',
+      HttpStatus.NOT_FOUND,
+    );
+  }
+
+  async getUserPrivate(username: string) {
+    const user = await this.userRepository.findOneBy({ username });
+    if (user) {
       return user;
     }
 
