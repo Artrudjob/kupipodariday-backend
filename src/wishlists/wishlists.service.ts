@@ -40,7 +40,7 @@ export class WishlistsService {
     );
   }
 
-  async updateOne(
+  async updateOne( // Напишите пожалуйста, какая ошибка (у меня она не отображается)
     id: number,
     userId: number,
     updateWishlistDto: UpdateWishlistDto,
@@ -51,14 +51,14 @@ export class WishlistsService {
     });
     if (wishlist.owner.id !== userId) {
       throw new HttpException(
-        'Невозможно удалить чужой список желаний',
+        'Невозможно обновить чужой список желаний',
         HttpStatus.FORBIDDEN,
       );
     }
 
     await this.wishlistRepository.update(id, updateWishlistDto);
 
-    const updatedWishlist = await this.wishlistRepository.findOneBy({ id: id });
+    const updatedWishlist = await this.wishlistRepository.findOneBy({ id });
     if (updatedWishlist) {
       return updatedWishlist;
     }
