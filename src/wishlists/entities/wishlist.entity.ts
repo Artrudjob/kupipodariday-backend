@@ -1,7 +1,7 @@
 import {
   Entity,
   PrimaryGeneratedColumn,
-  OneToMany,
+  ManyToMany,
   CreateDateColumn,
   UpdateDateColumn,
   Column,
@@ -34,7 +34,7 @@ export class Wishlist {
   image: string;
 
   @JoinColumn()
-  @OneToMany(() => Wish, (wish) => wish)
+  @ManyToMany(() => Wish, (wish) => wish.id)
   items: Wish[];
 
   @JoinColumn()

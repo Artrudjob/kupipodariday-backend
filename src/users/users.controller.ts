@@ -19,11 +19,6 @@ import { RequestUserId } from '../interface/interface';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get(':username')
-  findByUsername(@Param('username') username: string) {
-    return this.usersService.findByUsername(username);
-  }
-
   @Get('me')
   getUserMe(@Req() req: RequestUserId) {
     return this.usersService.findOne(req.user.id);
@@ -32,6 +27,11 @@ export class UsersController {
   @Get('me/wishes')
   getUserWishes(@Req() req: RequestUserId) {
     return this.usersService.getUserWishes(req.user.id);
+  }
+
+  @Get(':username')
+  findByUsername(@Param('username') username: string) {
+    return this.usersService.findByUsername(username);
   }
 
   @Get(':username/wishes')

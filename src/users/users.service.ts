@@ -20,12 +20,12 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     const newUser = await this.userRepository.create(createUserDto);
-    const { password, ...res } = newUser;
+    const { password, ...rest } = newUser;
     const hash = await bcrypt.hash(password, 10);
 
-    await this.userRepository.save({ password: hash, ...res });
+    await this.userRepository.save({ password: hash, ...rest });
 
-    return newUser;
+    return rest;
   }
 
   async find(body: { query: string }) {
@@ -44,9 +44,10 @@ export class UsersService {
   }
 
   async findOne(id: number) {
-    const user = await this.userRepository.findOneBy({ id: id });
+    const user = await this.userRepository.findOneBy({ id });
     if (user) {
-      return user;
+      const { password, ...rest } = user;
+      return rest;
     }
 
     throw new HttpException(
@@ -56,7 +57,7 @@ export class UsersService {
   }
 
   async findByUsername(username: string) {
-    const user = await this.userRepository.findOneBy({ username: username });
+    const user = await this.userRepository.findOneBy({ username });
     if (user) {
       return user;
     }
@@ -68,13 +69,13 @@ export class UsersService {
   }
 
   async updateOne(id: number, updateUserDto: UpdateUserDto) {
-    const user = await this.userRepository.findOneBy({ id: id });
-    const { password, ...res } = updateUserDto;
+    const user = await this.userRepository.findOneBy({ id });
+    const { password, ...rest } = updateUserDto;
     const hash = await bcrypt.hash(password, 10);
 
     if (user) {
-      await this.userRepository.update(id, { password: hash, ...res });
-      return user;
+      await this.userRepository.update(id, { password: hash, ...rest });
+      return rest;
     }
 
     throw new HttpException(
@@ -94,12 +95,18 @@ export class UsersService {
   }
 
   async getUserWishes(id: number) {
-    const user = await this.userRepository.findOneBy({ id: id });
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['wishes'],
+    });
     return user.wishes;
   }
 
   async getWishesByUsername(username: string) {
-    const user = await this.userRepository.findOneBy({ username: username });
+    const user = await this.userRepository.findOne({
+      where: { username },
+      relations: ['wishes'],
+    });
 
     if (!user) {
       throw new NotFoundException('Пользователь не найден', {

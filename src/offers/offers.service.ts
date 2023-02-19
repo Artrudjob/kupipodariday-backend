@@ -5,7 +5,7 @@ import { Offer } from './entities/offer.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WishesService } from '../wishes/wishes.service';
-import { User } from '../users/entities/user.entity';
+import { IOwner } from '../interface/interface';
 
 @Injectable()
 export class OffersService {
@@ -15,7 +15,7 @@ export class OffersService {
     private wishesService: WishesService,
   ) {}
 
-  async create(createOfferDto: CreateOfferDto, user: User): Promise<Offer> {
+  async create(createOfferDto: CreateOfferDto, user: IOwner): Promise<Offer> {
     const { itemId, amount } = createOfferDto;
     const wish = await this.wishesService.findOne(itemId);
 

@@ -4,7 +4,7 @@ import { UpdateWishDto } from './dto/update-wish.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Wish } from './entities/wish.entity';
-import { User } from '../users/entities/user.entity';
+import { IOwner } from '../interface/interface';
 
 @Injectable()
 export class WishesService {
@@ -13,7 +13,7 @@ export class WishesService {
     private wishRepository: Repository<Wish>,
   ) {}
 
-  async create(createWishDto: CreateWishDto, owner: User) {
+  async create(createWishDto: CreateWishDto, owner: IOwner) {
     const newWish = await this.wishRepository.create(createWishDto);
     await this.wishRepository.save({ ...createWishDto, owner });
 
@@ -21,7 +21,7 @@ export class WishesService {
   }
 
   async findOne(id: number): Promise<Wish> {
-    const wish = await this.wishRepository.findOneBy({ id: id });
+    const wish = await this.wishRepository.findOneBy({ id });
     if (wish) {
       return wish;
     }
@@ -33,7 +33,7 @@ export class WishesService {
   }
 
   async updateOne(id: number, updateWishDto: UpdateWishDto, userId: number) {
-    const wish = await this.wishRepository.findOneBy({ id: id });
+    const wish = await this.wishRepository.findOneBy({ id });
     if (!wish) {
       throw new HttpException(
         'Невозможно обновить. Запрашиваемый подарок не найден.',
@@ -103,7 +103,7 @@ export class WishesService {
     });
   }
 
-  async copyWish(id: number, user: User) {
+  async copyWish(id: number, user: IOwner) {
     const wish = await this.wishRepository.findOne({
       where: { id },
       relations: ['owner'],
@@ -116,7 +116,7 @@ export class WishesService {
     }
 
     const newWish = await this.create({ ...wish }, user);
-    await this.wishRepository.update({ id: id }, { copied: wish.copied + 1 });
+    await this.wishRepository.update({ id }, { copied: wish.copied + 1 });
     return newWish;
   }
 }

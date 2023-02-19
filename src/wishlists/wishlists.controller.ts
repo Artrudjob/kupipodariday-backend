@@ -46,18 +46,12 @@ export class WishlistsController {
     @Param('id') id: string,
     @Body() updateWishlistDto: UpdateWishlistDto,
   ) {
-    const currentUser = await this.usersService.findOne(req.user.id);
-    return this.wishlistsService.updateOne(
-      +id,
-      currentUser.id,
-      updateWishlistDto,
-    );
+    return this.wishlistsService.updateOne(+id, req.user.id, updateWishlistDto);
   }
 
   @UseGuards(JwtGuard)
   @Delete(':id')
   async removeOne(@Req() req: RequestUserId, @Param('id') id: string) {
-    const currentUser = await this.usersService.findOne(req.user.id);
-    return this.wishlistsService.removeOne(+id, currentUser.id);
+    return this.wishlistsService.removeOne(+id, req.user.id);
   }
 }

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
-import { User } from '../users/entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { IOwner } from '../interface/interface';
 
 @Injectable()
 export class AuthService {
@@ -11,7 +11,7 @@ export class AuthService {
     private usersService: UsersService,
   ) {}
 
-  auth(user: User) {
+  auth(user: IOwner) {
     const payload = { sub: user.id };
 
     return this.jwtService.sign(payload);

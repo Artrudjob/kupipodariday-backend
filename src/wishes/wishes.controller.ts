@@ -33,6 +33,16 @@ export class WishesController {
     return this.wishesService.create(createWishDto, owner);
   }
 
+  @Get('/top')
+  getTop() {
+    return this.wishesService.getTop();
+  }
+
+  @Get('/last')
+  getLast() {
+    return this.wishesService.getLast();
+  }
+
   @UseGuards(JwtGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -55,16 +65,6 @@ export class WishesController {
   async removeOne(@Req() req: RequestUserId, @Param('id') id: string) {
     const currentUser = await this.usersService.findOne(req.user.id);
     return this.wishesService.removeOne(+id, currentUser.id);
-  }
-
-  @Get('/top')
-  getTop() {
-    return this.wishesService.getTop();
-  }
-
-  @Get('/last')
-  getLast() {
-    return this.wishesService.getLast();
   }
 
   @UseGuards(JwtGuard)

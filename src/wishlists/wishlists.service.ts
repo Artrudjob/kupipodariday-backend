@@ -4,8 +4,8 @@ import { UpdateWishlistDto } from './dto/update-wishlist.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Wishlist } from './entities/wishlist.entity';
-import { User } from '../users/entities/user.entity';
 import { Wish } from '../wishes/entities/wish.entity';
+import { IOwner } from '../interface/interface';
 
 @Injectable()
 export class WishlistsService {
@@ -14,7 +14,7 @@ export class WishlistsService {
     private wishlistRepository: Repository<Wishlist>,
   ) {}
 
-  async create(createWishlistDto: CreateWishlistDto, user: User) {
+  async create(createWishlistDto: CreateWishlistDto, user: IOwner) {
     const { itemsId } = createWishlistDto;
     const items = itemsId.map((id) => ({ id } as Wish));
     const newWishlist = await this.wishlistRepository.create({
@@ -47,7 +47,7 @@ export class WishlistsService {
   ) {
     const wishlist = await this.wishlistRepository.findOne({
       where: { id },
-      relations: ['owner', 'item'],
+      relations: ['owner', 'items'],
     });
     if (wishlist.owner.id !== userId) {
       throw new HttpException(
@@ -72,7 +72,7 @@ export class WishlistsService {
   async removeOne(id: number, userId: number) {
     const wishlist = await this.wishlistRepository.findOne({
       where: { id },
-      relations: ['owner', 'item'],
+      relations: ['owner', 'items'],
     });
     if (wishlist.owner.id !== userId) {
       throw new HttpException(
