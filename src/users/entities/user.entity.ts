@@ -55,17 +55,17 @@ export class User {
   password: string;
 
   @JoinColumn()
-  @OneToMany(() => Wish, (wish) => wish)
+  @OneToMany(() => Wish, (wish) => wish.owner)
   @IsArray()
   wishes: Wish[];
 
   @JoinColumn()
-  @OneToMany(() => Offer, (offer) => offer)
+  @OneToMany(() => Offer, (offer) => offer.user)
   @IsArray()
   offers: Offer[];
 
   @JoinColumn()
-  @OneToMany(() => Wishlist, (wishlist) => wishlist)
+  @OneToMany(() => Wishlist, (wishlist) => wishlist.owner)
   @IsArray()
   wishlists: Wishlist[];
 }

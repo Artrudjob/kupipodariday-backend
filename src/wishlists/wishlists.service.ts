@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -28,7 +33,10 @@ export class WishlistsService {
   }
 
   async findOne(id: number) {
-    const wishlist = await this.wishlistRepository.findOneBy({ id: id });
+    const wishlist = await this.wishlistRepository.findOne({
+      where: { id },
+      relations: ['owner', 'items'],
+    });
 
     if (wishlist) {
       return wishlist;
@@ -40,7 +48,7 @@ export class WishlistsService {
     );
   }
 
-  async updateOne( // Напишите пожалуйста, какая ошибка (у меня она не отображается)
+  async updateOne(
     id: number,
     userId: number,
     updateWishlistDto: UpdateWishlistDto,
@@ -55,18 +63,17 @@ export class WishlistsService {
         HttpStatus.FORBIDDEN,
       );
     }
-
-    await this.wishlistRepository.update(id, updateWishlistDto);
-
-    const updatedWishlist = await this.wishlistRepository.findOneBy({ id });
-    if (updatedWishlist) {
+    const { itemsId, ...rest } = updateWishlistDto;
+    if (wishlist && itemsId) {
+      const items = itemsId.map((id) => ({ id } as Wishlist));
+      await this.wishlistRepository.save({ id, ...rest, items });
+      const updatedWishlist = this.findOne(id);
       return updatedWishlist;
+    } else if (wishlist) {
+      return this.wishlistRepository.save({ id, ...rest });
+    } else {
+      throw new BadRequestException('Невозможно обновить');
     }
-
-    throw new HttpException(
-      'Невозможно обновить. Список желаний не найден.',
-      HttpStatus.NOT_FOUND,
-    );
   }
 
   async removeOne(id: number, userId: number) {

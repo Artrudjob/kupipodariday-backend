@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -84,17 +85,18 @@ export class UsersService {
   async updateOne(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.userRepository.findOneBy({ id });
     const { password, ...rest } = updateUserDto;
-    const hash = await bcrypt.hash(password, 10);
-
-    if (user) {
+    if (user && password) {
+      const hash = await bcrypt.hash(password, 10);
       await this.userRepository.update(id, { password: hash, ...rest });
-      return rest;
+      delete user.password;
+      return user;
+    } else if (user) {
+      await this.userRepository.update(id, { ...rest });
+      delete user.password;
+      return user;
+    } else {
+      throw new BadRequestException('Невозможно обновить пользователя');
     }
-
-    throw new HttpException(
-      'Невозможно обновить. Пользователь не найден.',
-      HttpStatus.NOT_FOUND,
-    );
   }
 
   async removeOne(id: number) {
@@ -112,6 +114,7 @@ export class UsersService {
       where: { id },
       relations: ['wishes'],
     });
+
     return user.wishes;
   }
 
